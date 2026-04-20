@@ -1,0 +1,12 @@
+# Panel WWW (Czat)
+{$DOMAIN_WEBUI}:{$PORT_WEBUI} {
+    reverse_proxy open-webui:8080
+}
+
+# API dla IDE / MCP z autoryzacją Basic Auth
+{$DOMAIN_API}:{$PORT_API} {
+    basic_auth {
+        {$API_USER} {$API_PASSWORD_HASH}
+    }
+    reverse_proxy ollama:11434
+}

@@ -1,0 +1,55 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    volumes:
+      - ollama_storage:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - ai_net
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      # Wyłącza publiczną rejestrację po utworzeniu pierwszego konta admina
+      - ENABLE_SIGNUP=true
+    volumes:
+      - webui_storage:/app/backend/data
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    networks:
+      - ai_net
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: ai-proxy
+    ports:
+      - "${PORT_WEBUI}:${PORT_WEBUI}"
+      - "${PORT_API}:${PORT_API}"
+    environment:
+      - DOMAIN_WEBUI=${DOMAIN_WEBUI}
+      - DOMAIN_API=${DOMAIN_API}
+      - PORT_WEBUI=${PORT_WEBUI}
+      - PORT_API=${PORT_API}
+      - API_USER=${API_USER}
+      - API_PASSWORD_HASH=${API_PASSWORD_HASH}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    networks:
+      - ai_net
+
+networks:
+  ai_net:
+    driver: bridge
+
+volumes:
+  ollama_storage:
+  webui_storage:
+  caddy_data:
+  caddy_config:
