@@ -35,7 +35,7 @@ services:
       - PORT_WEBUI=${PORT_WEBUI}
       - PORT_API=${PORT_API}
       - API_USER=${API_USER}
-      - API_PASSWORD_HASH=${API_PASSWORD_HASH}
+      - API_PASSWORD_HASH="${API_PASSWORD_HASH}"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
